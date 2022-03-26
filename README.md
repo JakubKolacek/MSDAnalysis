@@ -1,7 +1,10 @@
 # MSDAnalysis
 Matlab scripts for MSD analysis for Comsol Mutliphysics's Particle Tracing module.
+Two data plots are available directly from the script. A classic plot and loglog plot.
+Each analysis is automatically saved to the current directory.
 
 **MSDparams.m**
+
 Script for MSD analysis when one or multiple studies is used in Comsol Multiphysics.
 
 Instructions:
@@ -16,6 +19,7 @@ Instructions:
 5. Run the Matlab script
 
 **MSDparams.m**
+
 Script for MSD analysis when one parametric study is used in Comsol Multiphysics
 
 Instructions:
