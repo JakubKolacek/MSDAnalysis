@@ -18,7 +18,7 @@ Instructions:
    For analysing multiple studies: _x_1.csv_, _y_1.csv_, _x_2.csv_, _y_2.csv_...
 5. Run the Matlab script
 
-**MSDparams.m**
+**MSDparam.m**
 
 Script for MSD analysis when one parametric study is used in Comsol Multiphysics
 
