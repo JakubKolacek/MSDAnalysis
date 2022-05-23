@@ -1,8 +1,9 @@
-clear
+% MSDparam.m
+clear 
 clc
 
 % User-defined variables
-DataPath = "C:\COMSOL\MSD";
+DataPath = "D:\MSD";
 
 %% Script initialization
 % Creates progress bar for a better overview of the script's progress
@@ -23,36 +24,45 @@ Y = table2array(readtable(fullfile(DataPath,'y_param.csv'),'ReadVariableNames',f
 progressbar.Value = .2; 
 progressbar.Message = 'Processing data';
 
-Nparticles = size(X,2)-2; % Number of particles equals number of columns - 2 (parameter and time column)
-params = unique(X(:,1)); % Array of parameter values
-Nparams = size(params,1); % Number of different parameters
-Nframes = (size(X,1)/Nparams); % Number of time frames per parameter
+Nparticles = size(X,2)-2; 		% Number of particles equals number of columns - 2 (parameter and time column)
+Nparams = size(unique(X(:,1)),1); 	% Number of different parameters
+Nframes = (size(X,1)/Nparams); 		% Number of time frames per parameter
 
-time_step = (0:X(3,2)-X(2,2):X(Nframes,2))';
+tau_min = X(2,2);
+tau_max = X(Nframes,2);
+tau_step = X(3,2)-X(2,2);
+tau_plot = (tau_min:tau_step:tau_max)';
 
 % Preallocates arrays for faster computing
-Deltar = zeros(Nframes-1,Nframes-1,Nparticles);
+params = zeros([Nparams 1]); 					% Array for parameter values
+dr = zeros(Nframes-1,Nframes-1,Nparticles);
 MSD = zeros(Nframes-1,Nparticles);
 EN = cell(Nparams,1);
 
 %% MSD Calculation
 % For each parameter
-for a=1:Nparams
-    for b=1:Nparticles
-        for c=1:(Nframes-1)
-            d=Nframes-c;
-            e=(a-1)*Nframes; % offset for different parameters
-            for i=1:d
-                Deltar(c,i,b)=(X(e+i+c,b+2)-X(e+i,b+2))^2+(Y(e+i+c,b+2)-Y(e+i,b+2))^2;
+for o=1:Nparams
+    % For each particle
+    for p=1:Nparticles
+        % For each time lag
+        for tau=1:(Nframes-1)
+            m = Nframes - tau;
+            e = (o-1)*Nframes; % offset for different parameters
+            % For each displacement
+            for i=1:m
+                dr(tau,i,p)=(X(e+i+tau,p+2)-X(e+i,p+2))^2+(Y(e+i+tau,p+2)-Y(e+i,p+2))^2;
             end
-            MSD(1,b) = 0;
-            MSD(c+1,b) = sum(Deltar(c,:,b))/d;
+            % Create average for all displacements at a given time
+            MSD(tau,p) = sum(dr(tau,:,p))/m;
         end
     end
-    EN{a} = mean(MSD,2)';
+    EN{o} = mean(MSD,2)';
+    EN_std{o} = std(MSD,0,2)';
+    params(o) = X(o*Nframes,1);
     
-    progressbar.Value = .2 + (.5*(a/Nparams));
-    progressbar.Message = strcat('Processing data (parameter',{' '},num2str(a),' out of  ',{' '},num2str(Nparams),')');
+    % Updates the progress bar
+    progressbar.Value = .2 + (.5*(o/Nparams));
+    progressbar.Message = strcat('Processing data (parameter',{' '},num2str(o),' out of  ',{' '},num2str(Nparams),')');
 end
 
 %% Results - data plots
@@ -63,7 +73,10 @@ progressbar.Message = 'Plotting data';
 % Normal plot
 figure('Name','Normal plot');
 for z=1:Nparams
-    plot(time_step,EN{z},'DisplayName',num2str(params(z)));
+    plot(tau_plot,EN{z},'DisplayName',num2str(params(z)));
+    xlim([tau_min tau_max]);
+    xlabel('\it\tau\rm (s)');
+    ylabel('<\Delta\itr\rm^2> (m^2)');
     if z == 1
         hold on;
     end
@@ -72,7 +85,11 @@ end
 % Logarithmic plot (log x log y)
 figure('Name','Log plot');
 for z=1:Nparams
-    loglog(time_step,EN{z},'DisplayName',num2str(params(z)));
+    plot(tau_plot,EN{z},'DisplayName',num2str(params(z)));
+    set(gca,'xscale','log');
+    set(gca,'yscale','log');
+    xlabel('\it\tau\rm (s)');
+    ylabel('<\Delta\itr\rm^2> (m^2)');
     if z == 1
         hold on;
     end
@@ -86,5 +103,3 @@ close(fig);
 
 FileName=['workspace_',datestr(now, 'dd-mm-yyyy_HH-MM-SS')];
 save(FileName);
-
-%load 'MSD.mat' if you want to use the values 
