@@ -29,3 +29,6 @@ Instructions:
 4. Name of the files MUST BE **x_param.csv** and **y_param.csv**!
 5. Run the Matlab script
 
+This code was developed as part of a Bachelor's thesis titled 'Microrheology modeling with COMSOL Multiphysics package' at the Faculty of Chemistry, Brno University of Technology. The full thesis can be accessed at [https://www.vut.cz/en/students/final-thesis/detail/156714](https://www.vut.cz/en/students/final-thesis/detail/138972).
+
+<img src="https://github.com/JakubKolacek/MSDAnalysis/assets/102429931/51ad0237-0354-4d0a-bb90-6b8377c54221" alt="UFSCH_color_RGB_EN" width="400"/>
